@@ -1,13 +1,13 @@
 [features]
 seeds = false
-[programs.localnet]
+[programs.devnet]
 mysolanaapp = "FgCxH9xv4mhisHVAmb8RCV3JVvTFKjVUayMUpmcW1xdk"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/imentus/.config/solana/id.json"
 
 [scripts]

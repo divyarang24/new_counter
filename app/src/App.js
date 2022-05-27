@@ -1,6 +1,9 @@
 import './App.css';
 import { useState } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection,
+  
+  PublicKey,
+   } from '@solana/web3.js';
 
 import {Program , AnchorProvider , web3} from '@project-serum/anchor';
 import idl from './idl.json'
@@ -8,7 +11,9 @@ import idl from './idl.json'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { useWallet, WalletProvider, ConnectionProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+// import { WalletSignTransactionError } from '@solana/wallet-adapter-base';
 require('@solana/wallet-adapter-react-ui/styles.css');
+const anchor =require("@project-serum/anchor");
 
 const wallets = [
   /* view list of available wallets at https://github.com/solana-labs/wallet-adapter#wallets */
@@ -25,12 +30,13 @@ var programID = new PublicKey(idl.metadata.address);
 
 function App() {
   const [value, setValue] = useState(null);
+  const[data , setdata] = useState(0)
   const wallet = useWallet();
 
   async function getProvider() {
     /* create the provider and return it to the caller */
     /* network set to local network for now */
-    const network = "http://127.0.0.1:8899";
+    const network = "https://api.devnet.solana.com";
     const connection = new Connection(network, opts.preflightCommitment);
 
     const provider = new AnchorProvider(
@@ -40,7 +46,6 @@ function App() {
   }
 
   async function createCounter() {    
-    
     const provider = await getProvider()
     /* create the program interface combining the idl, program ID, and provider */
     const program = new Program(idl, programID, provider);
@@ -62,29 +67,53 @@ function App() {
       console.log("Transaction error: ", err);
     }
   }
+ 
+
+
 
   async function increment() {
     const provider = await getProvider();
     const program = new Program(idl, programID, provider);
+    try{
     await program.rpc.increment({
       accounts: {
         baseAccount: baseAccount.publicKey
       }
     });
-
+  
     const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
     console.log('account: ', account);
     setValue(account.count.toString());
-  }
+  }catch{
+  // async () => {
+  //   wallet.disconnect();
+  //   await wallet.autoConnect();
+  // }
 
-  if (!wallet.connected) {
-    /* If the user's wallet is not connected, display connect wallet button. */
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop:'100px' }}>
-        <WalletMultiButton />
-      </div>
-    )
-  } else {
+//   (async () => {
+//      wallet.disconnect();
+//       <WalletProvider wallets={wallets}  autoConnect/>;
+// })();
+
+wallet.disconnect();
+
+   
+    
+  }
+  
+  
+  }
+  
+
+  // if (!wallet.connected) {
+  //   /* If the user's wallet is not connected, display connect wallet button. */
+  //   return (
+  //     <div style={{ display: 'flex', justifyContent: 'center', marginTop:'100px' }}>
+  //       {/* <WalletMultiButton /> */}
+  //       <WalletProvider wallets= {wallet} autoConnect />
+  //     </div>
+  //   )
+  // } else {
     return (
       <div className="App" style={{ display: 'flex', justifyContent: 'center', marginTop:'250px'}}>
         <div >
@@ -127,14 +156,16 @@ function App() {
       </div>
     );
   }
-}
+// }
 
 /* wallet configuration as specified here: https://github.com/solana-labs/wallet-adapter#setup */
 const AppWithProvider = () => (
   <ConnectionProvider endpoint="http://127.0.0.1:8899">
-    <WalletProvider wallets={wallets} autoConnect>
+    <WalletProvider wallets={wallets}  autoConnect>
       <WalletModalProvider>
+        <WalletMultiButton/>
         <App />
+        
       </WalletModalProvider>
     </WalletProvider>
   </ConnectionProvider>
